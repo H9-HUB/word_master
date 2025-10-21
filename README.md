@@ -12,6 +12,13 @@
 - 持久层：MyBatis
 - 数据库：MySQL（详细见“数据库说明文档”）
 - 开发工具：IntelliJ IDEA
+前后端
+  <img width="2879" height="1715" alt="image" src="https://github.com/user-attachments/assets/84cdda02-9351-4e82-9fbf-9657c592e36c" />
+  <img width="1741" height="1111" alt="image" src="https://github.com/user-attachments/assets/4bf0a93a-da65-40ca-a0bd-243c1d190d69" />
+  ![Uploading image.png…]()
+
+
+
 ### 二、项目结构
 ```
 Word_Master/ 
