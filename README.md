@@ -8,9 +8,9 @@
 - 前端：HTML、Tailwind CSS、JavaScript
 - 样式框架：Tailwind CSS
 - 动画效果：anime.js
-- 后端：Spring Boot (详细接口说明在API_Documentation)
+- 后端：Spring Boot (详细接口说明在API_Documentation.md)
 - 持久层：MyBatis
-- 数据库：MySQL（详细见database.md）
+- 数据库：MySQL（详细见“数据库说明文档”）
 - 开发工具：IntelliJ IDEA
 ### 二、项目结构
 ```
@@ -88,7 +88,7 @@ Word_Master/
 	│               └── stats.html      //学习统计页面，展示学习进度和成果
 	
 ```
-### 三、更新部分（具体功能需求分析见User_Requirements_Analysis）
+### 三、更新部分（具体功能需求分析见User_Requirements_Analysis.md）
 #### 1. 将原来的main.js拆分
 - 将不同功能拆分到 JS 目录下，与html文件相对应，使可读性增强
 #### 2. 建立后端数据库
