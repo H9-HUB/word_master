@@ -2,7 +2,8 @@
 ### 一、项目概述
 开发背单词Web应用，提供多种学习模式和完整的用户体验。
 #### 技术栈
-服务器地址：http://localhost:8080(在后端中也有跨域处理)
+服务器地址：http://localhost:8080
+(在后端中也有跨域处理)
 #### 技术栈
 - 前端：HTML、Tailwind CSS、JavaScript
 - 样式框架：Tailwind CSS
