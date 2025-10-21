@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>选择词汇等级 - 单词大师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+
+            min-height: 100vh;
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        }
+        .light-mode {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        }
+
+        .level-card {
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+        }
+        .level-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+            transform: translateY(-8px);
+        }
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2.5rem;
+            color: #fff;
+        }
+        .btn-choose {
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            transition: all 0.3s ease;
+        }
+        .btn-choose:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+<!-- 导航 -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-sm">词</span>
+            </div>
+            <h1 class="text-xl font-bold text-white">单词大师</h1>
+        </div>
+        <button onclick="history.back()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+            ← 返回
+        </button>
+    </div>
+</nav>
+
+<!--主要内容 -->
+<main class="pt-24 pb-12">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="text-4xl font-bold mb-4">选择词汇等级</h2>
+        <p class="text-slate-300 mb-12">选择你要学习的词汇等级，我们将为你推荐相应难度的单词</p>
+
+        <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            <!-- 四级卡片：点击卡片/按钮均触发选择四级 -->
+            <div class="level-card rounded-3xl p-8 text-center cursor-pointer" onclick="selectLevel('level4')">
+                <div class="icon-circle">📘</div>
+                <h3 class="text-2xl font-bold mb-3">四级词汇</h3>
+                <p class="text-slate-300 mb-6">大学英语四级核心词汇，共 4500个</p>
+                <button class="btn-choose text-white px-8 py-3 rounded-xl font-medium" onclick="selectLevel('level4')">选择四级</button>
+            </div>
+
+            <!-- 六级卡片：点击卡片/按钮均触发选择六级 -->
+            <div class="level-card rounded-3xl p-8 text-center cursor-pointer" onclick="selectLevel('level6')">
+                <div class="icon-circle">📕</div>
+                <h3 class="text-2xl font-bold mb-3">六级词汇</h3>
+                <p class="text-slate-300 mb-6">大学英语六级核心词汇，共 5523 个</p>
+                <button class="btn-choose text-white px-8 py-3 rounded-xl font-medium" onclick="selectLevel('level6')">选择六级</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    //跳转至learning.html
+    function selectLevel(level) {
+        localStorage.setItem('selectedLevel', level); // 存储用户选择的等级（key统一为selectedLevel）
+        window.location.href = 'learning.html';
+    }
+</script>
+</body>
+</html>

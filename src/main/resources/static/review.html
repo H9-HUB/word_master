@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复习模式 - 单词大师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; min-height: 100vh; }
+        .dark-mode { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important; }
+        .light-mode { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important; }
+        .question-card { background: linear-gradient(135deg, #334155 0%, #475569 100%); border: 2px solid #475569; }
+        .word-text { 
+            font-family: 'Noto Serif SC', serif; 
+            color: #f8fafc; 
+            word-break: keep-all; 
+            white-space: nowrap; 
+            overflow: visible; 
+            text-overflow: unset; 
+        }
+        .option-btn { background: linear-gradient(135deg, #475569, #334155); border: 2px solid #64748b; transition: all .3s ease; }
+        .option-btn:hover { border-color: #3b82f6; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59,130,246,.3); }
+        .option-btn.correct { background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981; }
+        .option-btn.incorrect { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #ef4444; }
+        .option-btn:disabled { opacity: .6; cursor: not-allowed; }
+        .pronunciation-btn { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    </style>
+</head>
+<body class="dark-mode">
+<nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <button onclick="goHome()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700">← 返回主页</button>
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center"><span class="text-white font-bold text-sm">词</span></div>
+                <h1 class="text-xl font-bold text-white">复习模式</h1>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4 text-white">
+            进度:<span id="reviewProgress" class="text-emerald-400 font-bold">0</span>/<span id="totalReviewWords">0</span>
+            <button id="themeToggle" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700"><span id="themeIcon">🌙</span></button>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-24 pb-12">
+    <div class="max-w-4xl mx-auto px-6">
+        <div class="flex justify-center mb-8">
+            <div class="relative w-24 h-24">
+                <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" stroke="#475569" stroke-width="8" fill="none"/>
+                    <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#10b981" stroke-width="8" fill="none" stroke-dasharray="283" stroke-dashoffset="283"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center"><span id="progressPercent" class="text-white font-bold text-lg">0%</span></div>
+            </div>
+        </div>
+
+        <div id="questionCard" class="question-card rounded-3xl p-12 mb-8 text-center">
+            <div class="mb-8">
+                <h2 id="questionWord" class="word-text text-6xl font-bold mb-4">加载中…</h2>
+                <button id="pronunciationBtn" class="pronunciation-btn text-white px-6 py-3 rounded-xl font-medium mb-6">🔊 发音</button>
+                <p class="text-slate-300 text-xl mb-8">请选择正确的词义：</p>
+            </div>
+
+            <!-- 四选一 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" id="optionsBox"></div>
+
+        </div>
+    </div>
+</main>
+
+<!-- 完成/无词弹窗 -->
+<div id="completionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="bg-slate-800 rounded-3xl p-12 text-center max-w-md mx-6 border border-slate-700">
+        <div class="text-6xl mb-6">🎊</div>
+        <h3 class="text-3xl font-bold text-white mb-4">复习完成！</h3>
+        <p class="text-slate-300 mb-6">您已经完成了所有的复习题目！</p>
+        <div class="bg-emerald-600/20 text-emerald-400 px-6 py-3 rounded-xl mb-6">正确率: <span id="accuracyRate">100</span>%</div>
+        <button onclick="goHome()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-medium rounded-xl">返回主页</button>
+    </div>
+</div>
+
+<div id="noWordsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="bg-slate-800 rounded-3xl p-12 text-center max-w-md mx-6 border border-slate-700">
+        <div class="text-6xl mb-6">📚</div>
+        <h3 class="text-2xl font-bold text-white mb-4">暂无复习内容</h3>
+        <p class="text-slate-300 mb-6">您今天还没有学习新单词，请先进入学习模式学习单词后再来复习。</p>
+        <button onclick="goHome()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-medium rounded-xl">返回主页</button>
+    </div>
+</div>
+
+<script src="main.js"></script>
+<script src="JS/review.js"></script>
+</body>
+</html>
