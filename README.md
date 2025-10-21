@@ -14,7 +14,7 @@
 - 开发工具：IntelliJ IDEA
 前后端
   <img width="2879" height="1715" alt="image" src="https://github.com/user-attachments/assets/84cdda02-9351-4e82-9fbf-9657c592e36c" />
-  <img width="741" height="911" alt="image" src="https://github.com/user-attachments/assets/4bf0a93a-da65-40ca-a0bd-243c1d190d69" />
+  <img width="2879" height="1715" alt="image" src="https://github.com/user-attachments/assets/4bf0a93a-da65-40ca-a0bd-243c1d190d69" />
    <img width="2879" height="1715" alt="8134476c336485ef8e8b597cc92d51e" src="https://github.com/user-attachments/assets/b4a499c5-4c8c-4612-9085-917ec8e4c32a" />
 
 
