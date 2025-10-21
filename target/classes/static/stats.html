@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习统计 - 单词大师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+
+            min-height: 100vh;
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        }
+        .light-mode {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+        .stat-number {
+            font-family: 'Noto Serif SC', serif;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .chart-container {
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
+            border: 2px solid #475569;
+        }
+        .achievement-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+            to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.8); }
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goHome()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                        ← 返回主页
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">词</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-white">学习统计</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="pt-24 pb-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <!-- 总体统计卡片 -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- 今日学习 -->
+                <div class="stat-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl mb-4">📚</div>
+                    <div class="stat-number text-3xl font-bold mb-2" id="todayLearned">0</div>
+                    <div class="text-slate-300">今日已学</div>
+                </div>
+
+                <!-- 累计学习 -->
+                <div class="stat-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl mb-4">🏆</div>
+                    <div class="stat-number text-3xl font-bold mb-2" id="totalLearned">0</div>
+                    <div class="text-slate-300">累计学习</div>
+                </div>
+
+                <!-- 单词本 -->
+                <div class="stat-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl mb-4">📝</div>
+                    <div class="stat-number text-3xl font-bold mb-2" id="notebookCount">0</div>
+                    <div class="text-slate-300">单词本</div>
+                </div>
+
+                <!-- 连续天数 -->
+                <div class="stat-card rounded-2xl p-6 text-center">
+                    <div class="text-4xl mb-4">🔥</div>
+                    <div class="stat-number text-3xl font-bold mb-2" id="streakDays">0</div>
+                    <div class="text-slate-300">连续天数</div>
+                </div>
+            </div>
+
+            <!-- 学习进度环形图 -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- 今日目标进度 -->
+                <div class="stat-card rounded-2xl p-8 text-center">
+                    <h3 class="text-xl font-bold text-white mb-6">今日目标进度</h3>
+                    <div class="relative inline-block">
+                        <svg class="progress-ring w-32 h-32" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" stroke="#475569" stroke-width="8" fill="none"/>
+                            <circle id="progressRing" cx="50" cy="50" r="40" stroke="#3b82f6" stroke-width="8" fill="none" class="progress-ring-circle"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-white" id="progressPercent">0%</div>
+                                <div class="text-sm text-slate-400">完成度</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-slate-300">
+                        <span id="currentProgress">0</span> / 10 个单词
+                    </div>
+                </div>
+
+                <!-- 成就系统 -->
+                <div class="stat-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold text-white mb-6">学习成就</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="achievement-badge w-12 h-12 rounded-full flex items-center justify-center text-2xl">
+                                🎯
+                            </div>
+                            <div>
+                                <div class="text-white font-medium">每日目标</div>
+                                <div class="text-slate-400 text-sm">完成10个单词学习</div>
+                            </div>
+                            <div id="dailyGoalStatus" class="ml-auto text-emerald-400 font-bold">未完成</div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-2xl">
+                                📖
+                            </div>
+                            <div>
+                                <div class="text-white font-medium">词汇达人</div>
+                                <div class="text-slate-400 text-sm">学习100个单词</div>
+                            </div>
+                            <div id="vocabularyMasterStatus" class="ml-auto text-slate-400">0/100</div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-2xl">
+                                🔥
+                            </div>
+                            <div>
+                                <div class="text-white font-medium">坚持不懈</div>
+                                <div class="text-slate-400 text-sm">连续学习7天</div>
+                            </div>
+                            <div id="consistentLearnerStatus" class="ml-auto text-slate-400">0/7</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学习趋势图表 -->
+            <div class="chart-container rounded-2xl p-8 mb-8">
+                <h3 class="text-xl font-bold text-white mb-6">学习趋势</h3>
+                <div id="learningChart" style="height: 300px;"></div>
+            </div>
+
+            <!-- 词汇分布 -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 词汇等级分布 -->
+                <div class="stat-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold text-white mb-6">词汇等级分布</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-blue-500 rounded"></div>
+                                <span class="text-white">四级词汇</span>
+                            </div>
+                            <span class="text-blue-400 font-bold" id="level4Count">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-emerald-500 rounded"></div>
+                                <span class="text-white">六级词汇</span>
+                            </div>
+                            <span class="text-emerald-400 font-bold" id="level6Count">0</span>
+                        </div>
+                        <!-- <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-4 h-4 bg-purple-500 rounded"></div>
+                                <span class="text-white">考研词汇</span>
+                            </div>
+                            <span class="text-purple-400 font-bold" id="kaoyanCount">0</span>
+                        </div> -->
+                    </div>
+                </div>
+
+                <!-- 学习模式统计 -->
+                <div class="stat-card rounded-2xl p-8">
+                    <h3 class="text-xl font-bold text-white mb-6">学习模式统计</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">📚</div>
+                                <span class="text-white">学习模式</span>
+                            </div>
+                            <span class="text-blue-400 font-bold" id="learningCount">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">🔄</div>
+                                <span class="text-white">复习模式</span>
+                            </div>
+                            <span class="text-emerald-400 font-bold" id="reviewCount">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">⌨️</div>
+                                <span class="text-white">拼写测试</span>
+                            </div>
+                            <span class="text-purple-400 font-bold" id="spellingCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="main.js"></script>
+    <script>
+        // 统计页面特定的JavaScript代码
+        document.addEventListener('DOMContentLoaded', function() {
+            initStatsMode();
+        });
+    </script>
+</body>
+</html>

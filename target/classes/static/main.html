@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词大师 - 智能背单词软件</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background: linear-gradient(135deg, #1a1b23 0%, #2d2e36 100%); min-height: 100vh; }
+        .hero-title { font-family: 'Noto Serif SC', serif; background: linear-gradient(135deg, #3b82f6, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2); }
+        .mode-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .floating-animation { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+        .dark-mode { background: linear-gradient(135deg, #0f172a 0%, #1e2d3b 100%);}
+        .light-mode { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);}
+        .search-input { background-color: rgba(51, 65, 85, 0.8); border: 1px solid rgba(100, 116, 139, 0.5); transition: all 0.3s ease; }
+        .search-input:focus { background-color: rgba(51, 65, 85, 1); border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .avatar-container { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(59, 130, 246, 0.5); cursor: pointer; transition: border-color 0.3s ease; }
+        .avatar-container:hover { border-color: #3b82f6; }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body class="dark-mode">
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+    <div class="max-w-6xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">词</span>
+                </div>
+                <h1 class="text-xl font-bold text-white">单词大师</h1>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="relative hidden md:block">
+                    <input type="text" id="searchInput" placeholder="搜索单词..." class="search-input pl-10 pr-4 py-2 rounded-lg text-white text-sm w-64">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                </div>
+                <div class="avatar-container" title="查看个人信息">
+                    <img src="/images/avatar.png" alt="用户头像" class="avatar-img">
+                </div>
+                <button id="themeToggle" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors" title="切换明暗模式">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <button id="logoutBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm">
+                    退出登录
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-24 pb-12">
+    <section class="relative overflow-hidden py-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <div class="floating-animation inline-block mb-6">
+                    <img src="images/hero-learning.png" alt="学习概念图" class="w-32 h-32 mx-auto rounded-2xl shadow-2xl">
+                </div>
+                <h2 class="hero-title text-5xl font-bold mb-6">智能背单词</h2>
+                <p class="text-slate-300 text-xl mb-8 max-w-2xl mx-auto">
+                    采用科学的记忆方法，让单词学习变得简单有趣。支持多种学习模式，智能跟踪学习进度。
+                </p>
+            </div>
+            <div id="modeSelection">
+                <h3 class="text-3xl font-bold text-white text-center mb-12">选择学习模式</h3>
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div class="mode-card bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700 card-hover cursor-pointer" onclick="location.href='level-select.html'">
+                        <div class="text-center">
+                            <div class="mode-icon">📚</div>
+                            <h4 class="text-2xl font-bold text-white mb-4">学习模式</h4>
+                            <p class="text-slate-300 mb-6">学习新单词，认识/不认识选择，自动记录进度</p>
+                            <div class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg inline-block">
+                                今日进度: <span id="todayProgress">0</span>/10
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mode-card bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700 card-hover cursor-pointer" onclick="startReview()">
+                        <div class="text-center">
+                            <div class="mode-icon">📄</div>
+                            <h4 class="text-2xl font-bold text-white mb-4">复习模式</h4>
+                            <p class="text-slate-300 mb-6">四选一选择题，巩固今日学习的单词</p>
+                            <div class="bg-emerald-600/20 text-emerald-400 px-4 py-2 rounded-lg inline-block">
+                                复习今日单词
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mode-card bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700 card-hover cursor-pointer" onclick="startSpelling()">
+                        <div class="text-center">
+                            <div class="mode-icon">⌨️</div>
+                            <h4 class="text-2xl font-bold text-white mb-4">拼写测试</h4>
+                            <p class="text-slate-300 mb-6">根据发音和词义拼写单词</p>
+                            <div class="bg-purple-600/20 text-purple-400 px-4 py-2 rounded-lg inline-block">
+                                拼写练习
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-3xl font-bold text-white text-center mb-12 mt-16">更多功能</h3>
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700 card-hover cursor-pointer" onclick="openNotebook()">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">📓</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-white">单词本</h4>
+                                <p class="text-slate-300">查看和管理不认识的单词</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700 card-hover cursor-pointer" onclick="openStats()">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">📊</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-white">学习统计</h4>
+                                <p class="text-slate-300">查看学习进度和统计信息</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700 card-hover cursor-pointer" onclick="location.href='ai-tutor.html'">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">🤖</div>
+                            <div>
+                                <h4 class="text-xl font-bold text-white">AI 伙伴</h4>
+                                <p class="text-slate-300">随时提问，AI 助教帮你解答单词疑难、练习造句</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-slate-900/50 border-t border-slate-700 py-8">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+        <p class="text-slate-400">© 2025 单词大师. 让学习变得更简单</p>
+    </div>
+</footer>
+
+<!-- 用户信息修改模态框 -->
+<div id="userInfoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+    <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-md mx-4 overflow-hidden">
+        <!-- 模态框头部 -->
+        <div class="bg-gradient-to-r from-blue-600/20 to-emerald-600/20 border-b border-slate-700 px-8 py-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">👤</span>
+                </div>
+                <h2 class="text-2xl font-bold text-white">修改用户信息</h2>
+            </div>
+            <button id="closeModalBtn" class="text-slate-400 hover:text-white transition-colors text-2xl w-8 h-8 flex items-center justify-center hover:bg-slate-700 rounded-lg">
+                ✕
+            </button>
+        </div>
+
+        <!-- 模态框内容 -->
+        <form id="updateUserForm" class="px-8 py-6 space-y-5">
+            <!-- 用户名字段 -->
+            <div class="space-y-2">
+                <label for="newUsername" class="block text-sm font-medium text-slate-300">
+                    用户名
+                </label>
+                <input
+                        type="text"
+                        id="newUsername"
+                        name="newUsername"
+                        required
+                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        placeholder="输入新用户名">
+                <p class="text-xs text-slate-400">3-20 个字符，支持中英文和数字</p>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-slate-700 pt-4"></div>
+
+            <!-- 旧密码字段 -->
+            <div class="space-y-2">
+                <label for="oldPassword" class="block text-sm font-medium text-slate-300">
+                    旧密码
+                </label>
+                <input
+                        type="password"
+                        id="oldPassword"
+                        name="oldPassword"
+                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        placeholder="不修改密码可留空">
+                <p class="text-xs text-slate-400">仅在需要修改密码时填写</p>
+            </div>
+
+            <!-- 新密码字段 -->
+            <div class="space-y-2">
+                <label for="newPassword" class="block text-sm font-medium text-slate-300">
+                    新密码
+                </label>
+                <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        placeholder="不修改密码可留空">
+                <p class="text-xs text-slate-400">需要 8-16 位，包含字母和数字</p>
+            </div>
+
+            <!-- 提示信息 -->
+            <div id="updateMessage" class="mt-6 p-3 rounded-lg bg-slate-700/30 border border-slate-600 text-center text-sm font-medium text-slate-300 min-h-6 hidden"></div>
+
+            <!-- 按钮组 -->
+            <div class="flex space-x-3 pt-6">
+                <button
+                        type="button"
+                        id="cancelBtn"
+                        class="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-all duration-200">
+                    取消
+                </button>
+                <button
+                        type="submit"
+                        class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-blue-500/20">
+                    确认修改
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

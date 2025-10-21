@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习模式 - 单词大师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+
+            min-height: 100vh;
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        }
+        .light-mode {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #334155 0%, #475569 100%);
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+        }
+        .word-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+        .word-text {
+            font-family: 'Noto Serif SC', serif;
+            color: #f8fafc;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: unset;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            transition: width 0.5s ease;
+        }
+        .btn-know {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+        .btn-know:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        .btn-dont-know {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            transition: all 0.3s ease;
+        }
+        .btn-dont-know:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+
+
+        .pronunciation-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            transition: all 0.3s ease;
+        }
+        .pronunciation-btn:hover {
+            transform: scale(1.05);
+        }
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+
+
+<script type="module">
+    import { initLearningMode } from './js/learning.js';
+    document.addEventListener('DOMContentLoaded', () => {
+        initLearningMode();
+        console.log('[DEBUG] learning 模式已初始化');
+    });
+</script>
+
+<body class="dark-mode">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+        <div class="max-w-6xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goHome()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                        ← 返回主页
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">词</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-white">学习模式</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-white">
+                        今日进度: <span id="todayProgress" class="text-blue-400 font-bold">0</span>/10
+                    </div>
+                    <button id="themeToggle" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="pt-24 pb-12">
+        <div class="max-w-4xl mx-auto px-6">
+            <!-- 进度条 -->
+            <div class="mb-8">
+                <div class="bg-slate-700 rounded-full h-3 overflow-hidden">
+                    <div id="progressBar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- 单词学习卡片 -->
+            <div id="wordCard" class="word-card rounded-3xl p-12 mb-8 text-center">
+                <div class="mb-8">
+                    <h2 id="currentWord" class="word-text text-6xl font-bold mb-4">WELCOME</h2>
+                    <div id="phonetic" class="text-slate-300 text-2xl mb-4">/ˈwelkəm/</div>
+                    <button id="pronunciationBtn" class="pronunciation-btn text-white px-6 py-3 rounded-xl font-medium mb-6">
+                        🔊 发音
+                    </button>
+                    <div id="meaning" class="text-slate-200 text-2xl leading-relaxed">
+                        欢迎；受欢迎的
+                    </div>
+                </div>
+
+                <!-- 单词分类标签 -->
+                <div class="mb-8">
+                    <span id="wordLevel" class="bg-blue-600/20 text-blue-400 px-4 py-2 rounded-full text-sm font-medium">
+                        四级词汇
+                    </span>
+                </div>
+
+                <!-- 认识/不认识按钮 -->
+                <div class="flex justify-center space-x-6">
+                    <button id="knowBtn" class="btn-know text-white px-12 py-4 rounded-2xl text-xl font-medium">
+                        ✅ 认识
+                    </button>
+                    <button id="dontKnowBtn" class="btn-dont-know text-white px-12 py-4 rounded-2xl text-xl font-medium">
+                        ❌ 不认识
+                    </button>
+                </div>
+            </div>
+
+            <!-- 单词计数 -->
+            <div class="text-center">
+                <div class="text-slate-400 text-lg">
+                    剩余单词: <span id="remainingWords" class="text-emerald-400 font-bold">20</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 完成页面 -->
+    <div id="completionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-slate-800 rounded-3xl p-12 text-center max-w-md mx-6 border border-slate-700">
+            <div class="text-6xl mb-6">🎉</div>
+            <h3 class="text-3xl font-bold text-white mb-4">学习完成！</h3>
+            <p class="text-slate-300 mb-6">恭喜您完成了今日的学习任务！</p>
+            <div class="bg-emerald-600/20 text-emerald-400 px-6 py-3 rounded-xl mb-6">
+                今日学习: <span id="completedCount">10</span> 个单词
+            </div>
+            <div class="space-y-3">
+                <button onclick="continueLearning()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-medium rounded-xl transition-all">
+                    继续学习
+                </button>
+                <button onclick="goHome()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl transition-all">
+                    返回主页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载中状态 -->
+    <div id="loadingState" class="text-center py-20 hidden">
+        <div class="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p class="text-slate-400">加载单词中...</p>
+    </div>
+
+    <script src="main.js"></script>
+
+</body>
+</html>
